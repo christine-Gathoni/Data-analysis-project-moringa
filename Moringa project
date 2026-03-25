@@ -1,0 +1,61 @@
+import pandas as pd
+import matplotlib.pyplot as plt
+import numpy as np
+
+def load_data(file_path):
+    """Reads a CSV file into a Pandas DataFrame."""
+    try:
+        # read_csv handles standard comma-separated files
+        df = pd.read_csv(file_path)
+        print("Data loaded successfully.")
+        return df
+    except FileNotFoundError:
+        print("Error: File not found.")
+        return None
+
+
+def clean_data(df):
+    """Performs basic cleaning like dropping NaNs and fixing types."""
+    # Remove rows with missing values
+    df = df.dropna()
+    
+    # Ensure numerical columns are floats
+    # Example: Converting a 'Sales' column if it's currently a string
+    if 'Sales' in df.columns:
+        df['Sales'] = pd.to_numeric(df['Sales'], errors='coerce')
+    
+    return df
+
+
+def analyze_and_plot(df):
+    """Groups data and creates a bar chart of results."""
+    # Example: Grouping by a categorical column like 'Category'
+    if 'Category' in df.columns and 'Sales' in df.columns:
+        summary = df.groupby('Category')['Sales'].sum().sort_values(ascending=False)
+        
+        
+        plt.figure(figsize=(10, 6))
+        summary.plot(kind='bar', color='skyblue', edgecolor='black')
+        
+        plt.title('Total Sales by Category', fontsize=14)
+        plt.xlabel('Category', fontsize=12)
+        plt.ylabel('Total Sales ($)', fontsize=12)
+        plt.xticks(rotation=45)
+        plt.tight_layout()
+        plt.show() 
+    else:
+        print("Required columns 'Category' or 'Sales' not found for plotting.")
+
+
+data = {
+    'Category': ['Electronics', 'Furniture', 'Electronics', 'Office Supplies', 'Furniture'],
+    'Sales': [250, 400, 150, 100, 300],
+    'Date': ['2026-01-01', '2026-01-02', '2026-01-03', '2026-01-04', '2026-01-05']
+}
+pd.DataFrame(data).to_csv('test_data.csv', index=False)
+
+raw_df = load_data('test_data.csv')
+if raw_df is not None:
+    cleaned_df = clean_data(raw_df)
+    analyze_and_plot(cleaned_df)
+    
